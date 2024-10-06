@@ -1,6 +1,6 @@
 
 import { StyleSheet, Text, View,StatusBar } from 'react-native';
-import Product from './components/ShowProduct/Product';
+import Product from './components/FormProduct/Product';
 
 export default function App() {
   return (
