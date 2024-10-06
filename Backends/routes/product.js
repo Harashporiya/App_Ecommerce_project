@@ -56,4 +56,15 @@ router.post("/product", upload.single("image"), async (req, res) => {
     }
 });
 
+router.get("/all/products", async(req,res)=>{
+    try {
+        const allProduct = await Product.find({})
+        if(!allProduct){
+            return res.status(404).json({message:"Product not found"})
+        }
+        return res.status(200).json({message:"Fetch all product"})
+    } catch (error) {
+        return res.status(500).json({message:"Failed fetch product"})
+    }
+})
 module.exports = router;
