@@ -1,12 +1,14 @@
 
 import { StyleSheet, Text, View,StatusBar } from 'react-native';
 import Product from './components/FormProduct/Product';
+import ShowProduct from './components/ShowProduct/Product';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle={"default"} />
-      <Product/>
+      {/* <Product/> */}
+      <ShowProduct/>
     </View>
   );
 }
