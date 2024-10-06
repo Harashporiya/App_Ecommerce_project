@@ -9,13 +9,10 @@ const zod = require("zod");
 // Set up multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() }); // Store files in memory for processing
 
-// Zod schema for validation
-const productZod = zod.object({
-    name: zod.string({ message: "Product name is required" }).min(1),
-    prise: zod.number({ message: "Price must be a positive number" }),
-    image: zod.any().refine((value) => value !== undefined, {
-        message: "Image must be a valid file",
-    }),
+// Define Zod schema for product validation
+const productSchema = zod.object({
+    name: zod.string().min(1, "Name is required"),
+    prise: zod.number().min(0, "Price must be a positive number"),
 });
 
 // Route to create a product
@@ -23,21 +20,17 @@ router.post("/product", upload.single("image"), async (req, res) => {
     const { name, prise } = req.body;
     const image = req.file; // Get the uploaded file
 
-    // Validate the incoming data
+    // Validate the input data
     try {
-        productZod.parse({
-            name,
-            prise: Number(prise),
-            image, // Here, image is already validated as an instance of File
-        });
-    } catch (error) {
-        return res.status(400).json({ message: error.errors });
-    }
+        productSchema.parse({ name, prise: Number(prise) }); // Validate input
 
-    const fileName = `${Date.now()}.${image.originalname.split(".").pop()}`; // Get the file extension
-    const filePath = path.join(process.cwd(), "public/assets", fileName);
+        if (!image) {
+            return res.status(400).json({ message: "Image is required" });
+        }
 
-    try {
+        const fileName = `${Date.now()}.${image.originalname.split(".").pop()}`; // Get the file extension
+        const filePath = path.join(process.cwd(), "public/assets", fileName);
+
         // Ensure the assets directory exists
         const assetsPath = path.dirname(filePath);
         await fs.mkdir(assetsPath, { recursive: true }); // Use async version
@@ -52,8 +45,12 @@ router.post("/product", upload.single("image"), async (req, res) => {
             image: `/assets/${fileName}`,
         });
 
-        return res.status(201).json({ message: "Product created successfully",productCreate });
+        return res.status(201).json({ message: "Product created successfully", productCreate });
     } catch (error) {
+        if (error instanceof zod.ZodError) {
+            // Handle Zod validation errors
+            return res.status(400).json({ message: "Validation error", errors: error.errors });
+        }
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
