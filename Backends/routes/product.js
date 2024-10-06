@@ -62,7 +62,7 @@ router.get("/all/products", async(req,res)=>{
         if(!allProduct){
             return res.status(404).json({message:"Product not found"})
         }
-        return res.status(200).json({message:"Fetch all product"})
+        return res.status(200).json({message:"Fetch all product",allProduct})
     } catch (error) {
         return res.status(500).json({message:"Failed fetch product"})
     }
