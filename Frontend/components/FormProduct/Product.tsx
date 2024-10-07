@@ -11,6 +11,8 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { API_BACKEND_URL } from '../../Backend_api_url/Api_Backends';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RouterType } from '../navigation';
 
 interface ImageInfo {
   uri: string;
@@ -23,6 +25,7 @@ const ProductForm = () => {
   const [price, setPrice] = useState('');
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation<NavigationProp<RouterType>>()
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -82,6 +85,7 @@ const ProductForm = () => {
       setName('');
       setPrice('');
       setImage(null);
+      navigation.navigate("ShowProduct")
     } catch (error) {
       console.error('Error creating product:', error);
       if (axios.isAxiosError(error)) {
@@ -140,6 +144,8 @@ const ProductForm = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    flex:1,
+    justifyContent:"center"
   },
   title: {
     fontSize: 24,
