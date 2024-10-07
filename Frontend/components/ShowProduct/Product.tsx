@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, StyleSheet, Image, Touchable, TouchableOpacity, ScrollView } from "react-native";
 import { API_BACKEND_URL } from "../../Backend_api_url/Api_Backends";
-
+import useProductContext from "../ContextApi/Product";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RouterType } from "../navigation";
 interface Product {
   _id: string;
   name: string;
@@ -12,6 +14,8 @@ interface Product {
 
 const ShowProduct = () => {
   const [data, setData] = useState<Product[]>([]);
+  const {setProduct} = useProductContext()
+  const navigation = useNavigation<NavigationProp<RouterType>>()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,15 +30,21 @@ const ShowProduct = () => {
     fetchData();
   }, []);
 
+  const handelProductData=(data:Product)=>{
+    setProduct(data);
+      navigation.navigate("ContextShowProduct")
+  }
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {data.length > 0 ? (
         data.map((item: Product) => {
           const imageUrl = `${API_BACKEND_URL}${item.image}`; 
          
           return (
-            <View key={item._id} style={styles.productCard}>
-              <Image
+            <TouchableOpacity key={item._id} onPress={()=>handelProductData(item)}>
+            <View key={item._id} style={styles.productCard} >
+              <Image 
                 source={{ uri: imageUrl }}
                 style={styles.productImage}
                 onError={() => console.log(`Error loading image: ${imageUrl}`)} 
@@ -42,12 +52,13 @@ const ShowProduct = () => {
               <Text style={styles.productName}>{item.name}</Text>
               <Text>Price: ${item.prise}</Text>
             </View>
+            </TouchableOpacity>
           );
         })
       ) : (
         <Text>No products available</Text>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
